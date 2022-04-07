@@ -21,7 +21,7 @@ Like many other R packages, the simplest way to obtain GPQR is to install it  fr
 
 ```{r setup}
 library(devtools)
-#devtools::install_github("https://github.com/ouhourane/GPQR.git")
+devtools::install_github("https://github.com/ouhourane/GPQR.git")
 ```
 
 In this vignette, we demonstrate how to use the GSQR() and cv.GSQR() functions in the GPQR
