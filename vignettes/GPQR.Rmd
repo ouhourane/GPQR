@@ -21,7 +21,6 @@ Like many other R packages, the simplest way to obtain GPQR is to install it  fr
 
 ```{r setup}
 library(devtools)
-<<<<<<< HEAD
 #devtools::install_github("https://github.com/ouhourane/GPQR.git")
 ```
 
@@ -41,9 +40,7 @@ This data set contains 120 samples with 100 predictors
 (expanded from 20 genes using 5 basis B-splines, as described in Yang, Y. and Zou, H. (2012)).
 
 ```{r bardet}
-=======
 devtools::install_github("https://github.com/ouhourane/GPQR.git")
->>>>>>> f2704f2aa7a6348789d502234f3bef5e935a99c7
 library(GPQR)
 #load bardet dataset
 data(bardet)
