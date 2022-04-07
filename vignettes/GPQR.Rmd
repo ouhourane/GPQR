@@ -54,7 +54,6 @@ Xtr=xx[1:n,]
 Ytr<-Xtr%*%betac+pnorm(Xtr[,p])*rnorm(n,0,sig)##rnorm(n,0,sig)
 dd=20;ddd=15
 taux = 0.95
-
 getmin <-function(lambda, cvm, cvsd) {
     cvmin <- min(cvm)
     idmin <- cvm <= cvmin
