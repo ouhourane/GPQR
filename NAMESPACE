@@ -1,1 +1,15 @@
-exportPattern("^[[:alpha:]]+")
+useDynLib("GPQR")
+importFrom(utils,head,tail,packageDescription)
+export(GPQR,
+cv.GPQR,
+predict.GPQR,
+predict.cv.GPQR,
+coef.GPQR,
+coef.cv.GPQR,
+plot.GPQR
+)
+
+S3method("coef","GPQR")
+S3method("plot","GPQR")
+S3method("predict","GPQR")
+
