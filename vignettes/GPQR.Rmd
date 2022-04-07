@@ -6,8 +6,6 @@ vignette: Group Penalized Quantile Regression in R A VIGNETTE
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
-
-
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -17,19 +15,18 @@ knitr::opts_knit$set(global.par = TRUE)
 knitr::opts_chunk$set(fig.width = 7, fig.height = 4)
 ```
 
-
-
 # Installation
 
 Like many other R packages, the simplest way to obtain GPQR is to install it  from github. Type the following command in R console:
 
 ```{r setup}
 library(devtools)
-##devtools::install_github("https://github.com/ouhourane/GPQR.git")
+devtools::install_github("https://github.com/ouhourane/GPQR.git")
 library(GPQR)
 ```
 
 # Illustation example
+
 
 ```{r illustration}
 library("MASS")
@@ -54,6 +51,7 @@ Xtr=xx[1:n,]
 Ytr<-Xtr%*%betac+pnorm(Xtr[,p])*rnorm(n,0,sig)##rnorm(n,0,sig)
 dd=20;ddd=15
 taux = 0.95
+
 getmin <-function(lambda, cvm, cvsd) {
     cvmin <- min(cvm)
     idmin <- cvm <= cvmin
@@ -127,4 +125,44 @@ grpreg_illustration("grSCAD")
 ```
 
 # real data set
+
+```{r import_data}
+#save.image(file = "PCEV.RData")
+#load("PCEV.RData")
+load(url("https://github.com/ouhourane/GPQR/raw/main/data/PCEV.RData"))
+ylab = expression(beta~'value')
+par(mfrow = c(2, 3))
+set.seed(123)
+################ package grpreg
+Trace_grpreg <- function (penalty){
+  cvfit = cv.grpreg(Xc, pheno, group, penalty=penalty)
+  coefGM=predict(cvfit, Xc, type="coefficients")[-1]
+  matplot(positionC/1e6,coefGM,col=4, type = "p",pch=19,cex=1,ylab=ylab,xlab="Location",main=paste("LS-",penalty),ylim=c(-0.008,0.006))
+  abline(v=11.235,lty=2) 
+  abline(v=11.385,lty=2)
+}
+## tracer
+Trace_grpreg("grLasso")
+Trace_grpreg("grMCP")
+Trace_grpreg("grSCAD")
+
+################ package GPER
+Trace_GPQR <- function (penalty,taux){
+  cvGS=cv.GPQR(Xc, pheno, group, Kfold = 5, taux = taux, check ="f1",method =penalty,plot.it=F)
+  l=min(which(cvGS$cv==min(cvGS$cv)))
+  nbeta <- c(cvGS$finalfit$b0[l], cvGS$finalfit$beta[,l])
+  matplot(positionC/1e6,nbeta[-1],col=4, type = "p",pch=19,cex=1,ylab=ylab,xlab="Location",
+          main= paste("GPQR -",penalty," tau=",taux),ylim=c(-0.008,0.006))
+  abline(v=11.235,lty=2) 
+  abline(v=11.385,lty=2)
+}
+## tracer
+Trace_GPQR("GLasso",0.5)
+Trace_GPQR("GMcp",0.5)
+Trace_GPQR("GScad",0.5)
+```
+
+
+
+
 
