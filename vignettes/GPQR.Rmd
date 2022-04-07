@@ -6,8 +6,6 @@ vignette: Group Penalized Quantile Regression in R A VIGNETTE
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
-
-
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -17,19 +15,46 @@ knitr::opts_knit$set(global.par = TRUE)
 knitr::opts_chunk$set(fig.width = 7, fig.height = 4)
 ```
 
-
-
 # Installation
 
 Like many other R packages, the simplest way to obtain GPQR is to install it  from github. Type the following command in R console:
 
 ```{r setup}
 library(devtools)
-##devtools::install_github("https://github.com/ouhourane/GPQR.git")
-library(GPQR)
+#devtools::install_github("https://github.com/ouhourane/GPQR.git")
 ```
 
-# Illustation example
+In this vignette, we demonstrate how to use the GSQR() and cv.GSQR() functions in the GPQR
+package to fit the regularization path of parametric quantile regression with grouped penalties. 
+This includes group selection methods such as group Lasso, group Mcp, and group Scad. 
+The others function: predict(), coef(), cv.predict, cv.coef are similar to those in glmnet package. 
+
+Let’s look at a simple example:
+
+
+# Bardet dataset
+
+Gene expression data (20 genes for 120 samples) from the microarray experiments 
+of mammalian eye tissue samples of Scheetz et al. (2006).
+This data set contains 120 samples with 100 predictors 
+(expanded from 20 genes using 5 basis B-splines, as described in Yang, Y. and Zou, H. (2012)).
+
+```{r bardet}
+library(GPQR)
+#load bardet dataset
+data(bardet)
+group <- rep(1:20,each=5)
+#run GPQR for group Lasso penaly, taux = 0.5 and  with the penalty group Lasso 
+#and the first pseudo-quantile approximation loss function 
+fit <- GPQR(x=bardet$x,y=bardet$y,group=group,method="GLasso",check="f1",taux=0.5)
+coef(fit)
+```
+
+"fit" is an object of class GPQR that contains all the relevant information of the fitted the QR for further use.
+To extract the extract the information from "fit", various functions are provided for the
+this object such as plot, print, coef and predict that enable us to run easily those tasks.
+
+
 
 ```{r illustration}
 library("MASS")
@@ -54,6 +79,7 @@ Xtr=xx[1:n,]
 Ytr<-Xtr%*%betac+pnorm(Xtr[,p])*rnorm(n,0,sig)##rnorm(n,0,sig)
 dd=20;ddd=15
 taux = 0.95
+
 getmin <-function(lambda, cvm, cvsd) {
     cvmin <- min(cvm)
     idmin <- cvm <= cvmin
@@ -127,4 +153,44 @@ grpreg_illustration("grSCAD")
 ```
 
 # real data set
+
+```{r import_data}
+#save.image(file = "PCEV.RData")
+#load("PCEV.RData")
+load(url("https://github.com/ouhourane/GPQR/raw/main/data/PCEV.RData"))
+ylab = expression(beta~'value')
+par(mfrow = c(2, 3))
+set.seed(123)
+################ package grpreg
+Trace_grpreg <- function (penalty){
+  cvfit = cv.grpreg(Xc, pheno, group, penalty=penalty)
+  coefGM=predict(cvfit, Xc, type="coefficients")[-1]
+  matplot(positionC/1e6,coefGM,col=4, type = "p",pch=19,cex=1,ylab=ylab,xlab="Location",main=paste("LS-",penalty),ylim=c(-0.008,0.006))
+  abline(v=11.235,lty=2) 
+  abline(v=11.385,lty=2)
+}
+## tracer
+Trace_grpreg("grLasso")
+Trace_grpreg("grMCP")
+Trace_grpreg("grSCAD")
+
+################ package GPER
+Trace_GPQR <- function (penalty,taux){
+  cvGS=cv.GPQR(Xc, pheno, group, Kfold = 5, taux = taux, check ="f1",method =penalty,plot.it=F)
+  l=min(which(cvGS$cv==min(cvGS$cv)))
+  nbeta <- c(cvGS$finalfit$b0[l], cvGS$finalfit$beta[,l])
+  matplot(positionC/1e6,nbeta[-1],col=4, type = "p",pch=19,cex=1,ylab=ylab,xlab="Location",
+          main= paste("GPQR -",penalty," tau=",taux),ylim=c(-0.008,0.006))
+  abline(v=11.235,lty=2) 
+  abline(v=11.385,lty=2)
+}
+## tracer
+Trace_GPQR("GLasso",0.5)
+Trace_GPQR("GMcp",0.5)
+Trace_GPQR("GScad",0.5)
+```
+
+
+
+
 
