@@ -29,7 +29,7 @@ library(devtools)
 library(GPQR)
 ```
 
-# Illustarion example
+# Illustation example
 
 ```{r illustration}
 library("MASS")
@@ -126,4 +126,6 @@ grpreg_illustration("grLasso")
 grpreg_illustration("grMCP")
 grpreg_illustration("grSCAD")
 ```
+
+# real data set
 
