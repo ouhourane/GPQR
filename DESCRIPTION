@@ -9,3 +9,7 @@ Description: This package implements a blockwise-majorization-decent  for group 
 License: GPL-2
 NeedsCompilation: yes
 Packaged: 2020-10-26 00:15:10 UTC; mohamedouhourane
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
