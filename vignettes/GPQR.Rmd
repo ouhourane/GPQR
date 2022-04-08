@@ -38,7 +38,6 @@ This data set contains 120 samples with 100 predictors
 (expanded from 20 genes using 5 basis B-splines, as described in Yang, Y. and Zou, H. (2012)).
 
 ```{r bardet}
-devtools::install_github("https://github.com/ouhourane/GPQR.git")
 library(GPQR)
 #load bardet dataset
 data(bardet)
