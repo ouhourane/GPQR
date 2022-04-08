@@ -21,15 +21,13 @@ Like many other R packages, the simplest way to obtain GPQR is to install it  fr
 
 ```{r setup}
 library(devtools)
-devtools::install_github("https://github.com/ouhourane/GPQR.git")
+#devtools::install_github("https://github.com/ouhourane/GPQR.git")
 ```
 
 In this vignette, we demonstrate how to use the GSQR() and cv.GSQR() functions in the GPQR
 package to fit the regularization path of parametric quantile regression with grouped penalties. 
 This includes group selection methods such as group Lasso, group Mcp, and group Scad. 
-The others function: predict(), coef(), cv.predict, cv.coef are similar to those in glmnet package. 
-
-Let’s look at a simple example:
+The others function: predict(), coef(), cv.predict, cv.coef, ... are minor modifications or directly copied from the glmnet package.
 
 
 # Bardet dataset
@@ -48,21 +46,44 @@ group <- rep(1:20,each=5)
 #run GPQR for group Lasso penaly, taux = 0.5 and  with the penalty group Lasso 
 #and the first pseudo-quantile approximation loss function 
 fit <- GPQR(x=bardet$x,y=bardet$y,group=group,method="GLasso",check="f1",taux=0.5)
-coef(fit)
+# To produce a coefficient profile plot of the coefficient paths for a fitted GPQR object.
+plot(fit)
 ```
 
 "fit" is an object of class GPQR that contains all the relevant information of the fitted the QR for further use.
 To extract the extract the information from "fit", various functions are provided for the
 this object such as plot, print, coef and predict that enable us to run easily those tasks.
 
+# Example 1 of our paper: Group Penalized Quantile Regression
 
+In this example, our goal is to illustrate  graphically the key advantages of using group penalized 
+quantile regression approaches to detect heterogeneous effects of predictors, 
+as alternatives to group penalized Least-Square (LS) regression methods.
 
+ We set the sample size to $n=100$ observations and $p=20$ predictors. The predictors $X_j, j=1,\ldots,20$, were generated as follows:
+\begin{itemize}
+    \item We generated $Z_j, j=1,\ldots,11,$ following the standard normal distribution;
+    \item We set $X_j = Z_1 + \epsilon_j^x, j=1,\ldots,4, \epsilon_j^x \sim N(0,0.1)$; 
+    \item $X_j = Z_2 + \epsilon_j^x, j=5,\ldots,8, \epsilon_j^x \sim N(0,0.1)$; 
+    \item $X_j = Z_3 + \epsilon_j^x, j=9,\ldots,12, \epsilon_j^x \sim N(0,0.1)$; 
+    \item $X_{j} = Z_{j-9}, j=13,\ldots,20$.
+\end{itemize}
+Thus, we set the predictors' effects to be
+$$
+\mathbf{\beta} =
+(\underbrace{3,3,3,3}_{G_1},\underbrace{2,2,2,2}_{G_2},\underbrace{-1,-1,-1,-1}_{G_3},\underbrace{0,\ldots,0}_{G_4-G_{11}})^\top
+$$
+and $\sigma = 3$. The response $Y$ is generated from the following location-scale linear regression model
+$$Y = \sum_{j=1}^{20} \beta_j X_j + \Phi(X_{20})\epsilon, \quad \epsilon \sim N(0,3),$$
+where $\Phi(.)$ is the cumulative distribution function of the standard normal distribution.
 
-```{r illustration}
+```{r data_simulation}
 library("MASS")
 library("grpreg")
+# Simulation data
 xlm=c(-2,4)
 Ng=11
+# A vector of consecutive integers describing the grouping of the coefficients
 group=c(1,1,1,1,2,2,2,2,3,3,3,3,4:Ng)
 n=100
 p=length(group)
@@ -74,14 +95,16 @@ MuVec<-rep(0,p);v<-rep(1,p);SigmaMat<-diag(v)
 for(i in 1:p){for(j in 1:p){SigmaMat[i,j]<- 0.5^abs(i-j);SigmaMat[i,i]<- 1}}
 set.seed(123456789) 
 x<-mvrnorm(2*n,MuVec,SigmaMat,tol = 1e-6, empirical = FALSE)
+# Simulation of a matrix of predictors
 xx = NULL
 for (h in 1:3) for (k in 1:4) xx=cbind(xx,x[,h]+rnorm(2*n,0,0.1))
 xx = cbind(xx,x[,4:Ng])
 Xtr=xx[1:n,]
-Ytr<-Xtr%*%betac+pnorm(Xtr[,p])*rnorm(n,0,sig)##rnorm(n,0,sig)
+# Simulation of a response variable
+Ytr<-Xtr%*%betac+pnorm(Xtr[,p])*rnorm(n,0,sig)
 dd=20;ddd=15
 taux = 0.95
-
+# Get lambda.min and lambda.1se
 getmin <-function(lambda, cvm, cvsd) {
     cvmin <- min(cvm)
     idmin <- cvm <= cvmin
@@ -92,6 +115,12 @@ getmin <-function(lambda, cvm, cvsd) {
     lambda.1se <- max(lambda[idmin])
     list(lambda.min = lambda.min, lambda.1se = lambda.1se)
 }
+```
+
+
+This function produce a coefficient profile plot of the coefficient paths for a fitted GPQR object.
+
+```{r illustration}
 GPQR_illustration <-function(penalty, taux){
   cv <- cv.GPQR(x=Xtr,y=Ytr,group=group,method=penalty,check="f1",taux=taux)
 fittGL=t(cv$finalfit$beta)
@@ -114,18 +143,25 @@ text(0.02,-1.4,expression("G"[3]),col=4)
 }
 ```
 
+
+We run the function "GPQR_illustration" with different parameters.
+
+
 ```{r GPQR_tau_0.95}
 par(mfrow = c(1,3))
 GPQR_illustration("GLasso", 0.95)
 GPQR_illustration("GMcp", 0.95)
 GPQR_illustration("GScad", 0.95)
 ```
+
 ```{r GPQR_tau_0.50}
 par(mfrow = c(1,3))
 GPQR_illustration("GLasso", 0.50)
 GPQR_illustration("GMcp", 0.50)
 GPQR_illustration("GScad", 0.50)
 ```
+
+This function produce a coefficient profile plot of the coefficient paths for a fitted grpreg object.
 
 ```{r grpreg}
 grpreg_illustration <-function(penalty){
@@ -147,6 +183,13 @@ text(0.4,3.3,expression("G"[1]),col=3)
 text(0.4,2.3,expression("G"[2]),col=2)
 text(0.4,-1.5,expression("G"[3]),col=4)
 }
+```
+
+
+We run the function "grpreg_illustration" with different penalities: 
+
+
+```{r grpreg_illustration_plot}
 xlm=c(-3,7)
 par(mfrow = c(1,3))
 grpreg_illustration("grLasso")
@@ -154,30 +197,57 @@ grpreg_illustration("grMCP")
 grpreg_illustration("grSCAD")
 ```
 
-# real data set
+The figures above show  that the coefficients' profiles of the GPQR with $\tau \in \{0.50, 0.95\}$ tend to be smooth, however, the LS paths fluctuate widely, and some coefficients are in opposite directions/signs to their true values.
+
+# Gene-based analysis of the DNA methylation data near the {\it BLK} gene
+
+This real example illustrates the GPQR approach performance for binary classification 
+using DNA methylation around the {\it BLK} gene, located in chromosome 8, to detect 
+differentially methylated regions (DMRs). DMRs refer to genomic regions with 
+significantly different methylation levels between two groups of samples. 
+The data consists of methylation levels of 5,986 cytosine-guanine dinucleotides 
+within a genomic region of 2 million base pairs. 
+The methylation levels in these CpG sites (predictors) are measured in 40 samples
+using bisulfite sequencing
+
+Importing "PCEV.RData" data into R  from Github
 
 ```{r import_data}
-#save.image(file = "PCEV.RData")
-#load("PCEV.RData")
+#load "PCEV.RData" from github
 load(url("https://github.com/ouhourane/GPQR/raw/main/data/PCEV.RData"))
 ylab = expression(beta~'value')
-par(mfrow = c(2, 3))
+par(mfrow = c(1, 3))
 set.seed(123)
-################ package grpreg
-Trace_grpreg <- function (penalty){
+```
+
+The function "plot_grpreg" produce the optimal value  for the regression coefficients of 
+the grpreg-methods with the three group penalties (GMCP, GSCAD, and Glasso) 
+are shown as a function of the genomic position.
+
+```{r function_plot_grpreg}
+plot_grpreg <- function (penalty){
   cvfit = cv.grpreg(Xc, pheno, group, penalty=penalty)
   coefGM=predict(cvfit, Xc, type="coefficients")[-1]
   matplot(positionC/1e6,coefGM,col=4, type = "p",pch=19,cex=1,ylab=ylab,xlab="Location",main=paste("LS-",penalty),ylim=c(-0.008,0.006))
   abline(v=11.235,lty=2) 
   abline(v=11.385,lty=2)
 }
-## tracer
-Trace_grpreg("grLasso")
-Trace_grpreg("grMCP")
-Trace_grpreg("grSCAD")
+```
 
-################ package GPER
-Trace_GPQR <- function (penalty,taux){
+We run the function "plot_grpreg" with different penalties: 
+
+```{r plot_grpreg}
+plot_grpreg("grLasso")
+plot_grpreg("grMCP")
+plot_grpreg("grSCAD")
+```
+
+The function "plot_GPQR" produce the optimal value  for the regression coefficients of 
+the GPQR-methods with the three group penalties (GMCP, GSCAD, and Glasso) 
+are shown as a function of the genomic position.
+
+```{r function_plot_GPQR}
+plot_GPQR <- function (penalty,taux){
   cvGS=cv.GPQR(Xc, pheno, group, Kfold = 5, taux = taux, check ="f1",method =penalty,plot.it=F)
   l=min(which(cvGS$cv==min(cvGS$cv)))
   nbeta <- c(cvGS$finalfit$b0[l], cvGS$finalfit$beta[,l])
@@ -186,12 +256,19 @@ Trace_GPQR <- function (penalty,taux){
   abline(v=11.235,lty=2) 
   abline(v=11.385,lty=2)
 }
-## tracer
-Trace_GPQR("GLasso",0.5)
-Trace_GPQR("GMcp",0.5)
-Trace_GPQR("GScad",0.5)
 ```
 
+We run the function "plot_GPQR" for $\tau = 0.5$ and three penalties: 
+
+```{r plot_GPQR}
+plot_GPQR("GLasso",0.5)
+plot_GPQR("GMcp",0.5)
+plot_GPQR("GScad",0.5)
+```
+
+As we can see, the region around 11.3 Mb with size 150kb 
+(i.e., the region delimited by the two vertical lines) is detected/selected by 
+the quantile regression methods, but not with the LS approach.
 
 
 
