@@ -29,6 +29,10 @@ package to fit the regularization path of parametric quantile regression with gr
 This includes group selection methods such as group Lasso, group Mcp, and group Scad. 
 The others function: predict(), coef(), cv.predict, cv.coef, ... are minor modifications or directly copied from the glmnet package.
 
+```{r Illustation_code_function}
+source("https://github.com/ouhourane/GPQR/raw/main/vignettes/Code_Function_used_in_Vignette.R")
+```
+
 
 # Bardet dataset
 
