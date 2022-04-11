@@ -30,9 +30,8 @@ This includes group selection methods such as group Lasso, group Mcp, and group 
 The others function: predict(), coef(), cv.predict, cv.coef, ... are minor modifications or directly copied from the glmnet package.
 
 ```{r Illustation_code_function}
-source("https://github.com/ouhourane/GPQR/raw/main/vignettes/Code_Function_used_in_Vignette.R")
+source("https://github.com/ouhourane/GPQR/blob/main/vignettes/Code_Function_used_in_Vignette.R")
 ```
-
 
 # Bardet dataset
 
@@ -44,6 +43,7 @@ This data set contains 120 samples with 100 predictors
 ```{r bardet}
 library(GPQR)
 #load bardet dataset
+
 data(bardet)
 group <- rep(1:20,each=5)
 #run GPQR for group Lasso penaly, taux = 0.5 and  with the penalty group Lasso 

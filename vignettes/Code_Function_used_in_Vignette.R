@@ -9,10 +9,8 @@ getmin <-function(lambda, cvm, cvsd) {
   lambda.1se <- max(lambda[idmin])
   list(lambda.min = lambda.min, lambda.1se = lambda.1se)
 }
-
-
-#This function produce a coefficient profile plot of the coefficient paths for a fitted GPQR object.
-
+#This function produce a coefficient profile plot of the coefficient paths for
+#a fitted GPQR object.
 GPQR_illustration <-function(penalty, taux){
   cv <- cv.GPQR(x=Xtr,y=Ytr,group=group,method=penalty,check="f1",taux=taux)
   fittGL=t(cv$finalfit$beta)
@@ -33,9 +31,8 @@ GPQR_illustration <-function(penalty, taux){
   text(0.02,2.2,expression("G"[2]),col=2)
   text(0.02,-1.4,expression("G"[3]),col=4)
 }
-
-# This function produce a coefficient profile plot of the coefficient paths for a fitted grpreg object.
-
+# This function produce a coefficient profile plot of the coefficient paths for
+#a fitted grpreg object.
 grpreg_illustration <-function(penalty){
   cv <- cv.grpreg(Xtr, Ytr, group, penalty=penalty)
   fittL=t(cv$fit$beta)[,-1]
@@ -55,10 +52,8 @@ grpreg_illustration <-function(penalty){
   text(0.4,2.3,expression("G"[2]),col=2)
   text(0.4,-1.5,expression("G"[3]),col=4)
 }
-
-# The function "plot_grpreg" produce the optimal value  for the regression coefficients of
-#the grpreg-methods are shown as a function of the genomic position.
-
+# The function "plot_grpreg" produce the optimal value  for the regression
+#coefficients of the grpreg-methods are shown as a function of the genomic position.
 plot_grpreg <- function (penalty){
   cvfit = cv.grpreg(Xc, pheno, group, penalty=penalty)
   coefGM=predict(cvfit, Xc, type="coefficients")[-1]
@@ -66,10 +61,8 @@ plot_grpreg <- function (penalty){
   abline(v=11.235,lty=2)
   abline(v=11.385,lty=2)
 }
-
 #The function "plot_GPQR" produce the optimal value  for the regression coefficients of
 #the GPQR-methods are shown as a function of the genomic position.
-
 plot_GPQR <- function (penalty,taux){
   cvGS=cv.GPQR(Xc, pheno, group, Kfold = 5, taux = taux, check ="f1",method =penalty,plot.it=F)
   l=min(which(cvGS$cv==min(cvGS$cv)))
@@ -79,4 +72,3 @@ plot_GPQR <- function (penalty,taux){
   abline(v=11.235,lty=2)
   abline(v=11.385,lty=2)
 }
-
