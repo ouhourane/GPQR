@@ -31,6 +31,7 @@ The others function: predict(), coef(), cv.predict, cv.coef, ... are minor modif
 
 ```{r Illustation_code_function}
 source("https://github.com/ouhourane/GPQR/blob/main/vignettes/Code_Function_used_in_Vignette.R")
+
 ```
 
 # Bardet dataset
