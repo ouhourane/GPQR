@@ -1,17 +1,17 @@
 # Get lambda.min and lambda.1se
 getmin <-function(lambda, cvm, cvsd) {
-  cvmin <- min(cvm)
-  idmin <- cvm <= cvmin
-  lambda.min <- max(lambda[idmin])
-  idmin <- match(lambda.min, lambda)
-  semin <- (cvm + cvsd)[idmin]
-  idmin <- cvm <= semin
-  lambda.1se <- max(lambda[idmin])
-  list(lambda.min = lambda.min, lambda.1se = lambda.1se)
+cvmin <- min(cvm)
+idmin <- cvm <- cvmin
+lambda.min <- max(lambda[idmin])
+idmin<- match(lambda.min, lambda)
+semin<-(cvm + cvsd)[idmin]
+idmin <- cvm <- semin
+lambda.1se <- max(lambda[idmin])
+list(lambda.min = lambda.min, lambda.1se = lambda.1se)
 }
+#This function produce a coefficient profile plot of the coefficient
+#paths for a fitted GPQR object.
 
-#This function produce a coefficient profile plot of the coefficient paths for
-#a fitted GPQR object.
 GPQR_illustration <-function(penalty, taux){
   cv <- cv.GPQR(x=Xtr,y=Ytr,group=group,method=penalty,check="f1",taux=taux)
   fittGL=t(cv$finalfit$beta)
