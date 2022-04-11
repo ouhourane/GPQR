@@ -11,7 +11,6 @@ list(lambda.min = lambda.min, lambda.1se = lambda.1se)
 }
 #This function produce a coefficient profile plot of the coefficient
 #paths for a fitted GPQR object.
-
 GPQR_illustration <-function(penalty, taux){
   cv <- cv.GPQR(x=Xtr,y=Ytr,group=group,method=penalty,check="f1",taux=taux)
   fittGL=t(cv$finalfit$beta)
